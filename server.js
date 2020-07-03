@@ -60,14 +60,23 @@ app.get("/api/workouts", async (req, res) => {
 app.post("/api/workouts", async (req, res) => {
     console.log(req.body);
     console.log(req.params);
-    const data = await db.Workout.create({exercises: []});
+    const data = await db.Workout.create({});
     res.send(data);
 })
 app.put("/api/workouts/:id", async (req, res) => {
     console.log(req.body);
     console.log(req.params);
-    const data = await db.Workout.create({exercises: []});
+    const data = await db.Workout.findByIdAndUpdate(req.params.id, {$push: {exercises: req.body}});
     res.send(data);
+})
+app.get("/api/workouts/range", async (req, res) => {
+    try {
+        const data = await db.Workout.find({});
+        res.send(data);
+        
+    } catch (error) {
+        console.log(error);
+    }
 })
 
 
