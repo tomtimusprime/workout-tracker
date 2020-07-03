@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 let db = require("./models");
 
-mongoose.connect("mongodb://localhost:27017/workout_db", {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/workout_db", {useNewUrlParser: true, useUnifiedTopology: true});
 const express = require("express");
 const app = express();
 
@@ -48,19 +48,22 @@ app.get("/exercise", (req, res) => {
 });
 
 app.get("/api/workouts", async (req, res) => {
-   try {
-       const data = await db.Workout.find({});
-       res.send(data);
-       
-   } catch (error) {
-       console.log(error);
-   }
-   
+        try {
+        const data = await db.Workout.find({});
+        const workouts = data.map((workout) => {
+           let totalDuration = workout.totalDuration();
+            return {...workout._doc, totalDuration};
+        })
+          
+          res.json(workouts);
+        } catch (error) {
+          console.log(error);
+        }
 })
 app.post("/api/workouts", async (req, res) => {
     console.log(req.body);
     console.log(req.params);
-    const data = await db.Workout.create({});
+    const data = await db.Workout.create(req.body);
     res.send(data);
 })
 app.put("/api/workouts/:id", async (req, res) => {
